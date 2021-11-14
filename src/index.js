@@ -6,6 +6,12 @@ const config = {
   height: 600,
   physics: {
     default: "arcade",
+    arcade: {
+      debug: true,
+      // gravity: {
+      //   y: 200,
+      // },
+    },
   },
   scene: {
     preload,
@@ -15,6 +21,8 @@ const config = {
 };
 
 let bird = null;
+
+const VELOCITY = 200;
 
 function preload() {
   this.load.image("sky", "assets/sky.png");
@@ -28,11 +36,21 @@ function create() {
   bird = this.physics.add
     .sprite(config.width * 0.1, config.height / 2, "bird")
     .setOrigin(0);
-  bird.body.velocity.y = 100;
+
+  // bird.body.gravity.y = 200
+  // t0 = 0px/s
+  // t1 = 200px/s
+  // t2 = 400px/s
+  bird.body.velocity.x = VELOCITY;
+  console.log(bird);
 }
 
-function update() {
-  console.log(bird.body.velocity.y);
+function update(time, delta) {
+  if (bird.x >= config.width - bird.width) {
+    bird.body.velocity.x = -VELOCITY;
+  } else if (bird.x <= 0) {
+    bird.body.velocity.x = VELOCITY;
+  }
 }
 
 new Phaser.Game(config);
