@@ -6,12 +6,18 @@ export class PlayScene extends Phaser.Scene {
   constructor(config) {
     super("PlayScene");
     this.config = config;
+
     this.bird = null;
     this.pipes = null;
+
     this.pipeHorizontalDistance = 0;
     this.pipeVerticalDistaneRange = [150, 250];
     this.pipeHorizontalDistanceRange = [400, 500];
-    this.flapVelocity = 200;
+    this.flapVelocity = 300;
+
+    this.score = 0;
+    this.scoreText = "";
+    this.bestScore = +localStorage.getItem("bestScore") || 0;
   }
 
   preload() {
@@ -25,6 +31,8 @@ export class PlayScene extends Phaser.Scene {
     this.createBird();
     this.createPipes();
     this.createColliders();
+
+    this.createScore();
     this.handleInputs();
   }
 
@@ -50,7 +58,7 @@ export class PlayScene extends Phaser.Scene {
     this.bird = this.physics.add
       .sprite(this.config.startPosition.x, this.config.startPosition.y, "bird")
       .setOrigin(0);
-    this.bird.body.gravity.y = 400;
+    this.bird.body.gravity.y = 600;
     this.bird.setCollideWorldBounds(true);
   }
 
@@ -75,6 +83,19 @@ export class PlayScene extends Phaser.Scene {
 
   createColliders() {
     this.physics.add.collider(this.bird, this.pipes, this.gameOver, null, this);
+  }
+
+  createScore() {
+    this.score = 0;
+    this.scoreText = this.add.text(
+      16,
+      16,
+      `Score: ${this.score} | Best: ${this.bestScore}`,
+      {
+        fontSize: "32px",
+        fill: "#000000",
+      }
+    );
   }
 
   handleInputs() {
@@ -115,6 +136,7 @@ export class PlayScene extends Phaser.Scene {
         tempPipes.push(pipe);
         if (tempPipes.length === 2) {
           this.placePipe(...tempPipes);
+          this.increaseScore();
         }
       }
     });
@@ -129,12 +151,26 @@ export class PlayScene extends Phaser.Scene {
     return rightMostX;
   }
 
+  increaseScore() {
+    this.score++;
+    this.scoreText.setText(`Score: ${this.score} | Best: ${this.bestScore}`);
+  }
+
   gameOver() {
     // this.bird.y = this.config.startPosition.y;
     // this.bird.x = this.config.startPosition.x;
     // this.bird.body.velocity.y = 0;
     this.physics.pause();
     this.bird.setTint(0xee4844);
+
+    const bestScoreString = localStorage.getItem("bestScore");
+    const bestScore = bestScoreString ? +bestScoreString : 0;
+
+    if (!bestScoreString || this.score > bestScore) {
+      localStorage.setItem("bestScore", this.score);
+      this.bestScore = +localStorage.getItem("bestScore");
+    }
+
     this.time.addEvent({
       delay: 1000,
       callback: () => this.scene.restart(),
