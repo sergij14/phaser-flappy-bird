@@ -24,6 +24,7 @@ export class PlayScene extends Phaser.Scene {
     this.createBG();
     this.createBird();
     this.createPipes();
+    this.createColliders();
     this.handleInputs();
   }
 
@@ -34,10 +35,10 @@ export class PlayScene extends Phaser.Scene {
 
   checkGameStatus() {
     if (
-      this.bird.y >= this.config.height - this.bird.height ||
+      this.bird.getBounds().bottom >= this.config.height ||
       this.bird.y <= 0
     ) {
-      this.restartPlayerPosition();
+      this.gameOver();
     }
   }
 
@@ -50,19 +51,30 @@ export class PlayScene extends Phaser.Scene {
       .sprite(this.config.startPosition.x, this.config.startPosition.y, "bird")
       .setOrigin(0);
     this.bird.body.gravity.y = 400;
+    this.bird.setCollideWorldBounds(true);
   }
 
   createPipes() {
     this.pipes = this.physics.add.group();
 
     for (let i = 0; i < PIPES_NUM; i++) {
-      const upperPipe = this.pipes.create(0, 0, "pipe").setOrigin(0, 1);
-      const lowerPipe = this.pipes.create(0, 0, "pipe").setOrigin(0, 0);
+      const upperPipe = this.pipes
+        .create(0, 0, "pipe")
+        .setImmovable(true)
+        .setOrigin(0, 1);
+      const lowerPipe = this.pipes
+        .create(0, 0, "pipe")
+        .setImmovable(true)
+        .setOrigin(0, 0);
 
       this.placePipe(upperPipe, lowerPipe);
     }
 
     this.pipes.setVelocityX(-200);
+  }
+
+  createColliders() {
+    this.physics.add.collider(this.bird, this.pipes, this.gameOver, null, this);
   }
 
   handleInputs() {
@@ -117,9 +129,16 @@ export class PlayScene extends Phaser.Scene {
     return rightMostX;
   }
 
-  restartPlayerPosition() {
-    this.bird.y = this.config.startPosition.y;
-    this.bird.x = this.config.startPosition.x;
-    this.bird.body.velocity.y = 0;
+  gameOver() {
+    // this.bird.y = this.config.startPosition.y;
+    // this.bird.x = this.config.startPosition.x;
+    // this.bird.body.velocity.y = 0;
+    this.physics.pause();
+    this.bird.setTint(0xee4844);
+    this.time.addEvent({
+      delay: 1000,
+      callback: () => this.scene.restart(),
+      loop: false,
+    });
   }
 }
