@@ -21,13 +21,38 @@ export class PlayScene extends Phaser.Scene {
     this.load.image("pipe", "assets/pipe.png");
   }
   create() {
-    this.add.image(0, 0, "sky").setOrigin(0);
+    this.createBG();
+    this.createBird();
+    this.createPipes();
+    this.handleInputs();
+  }
 
+  update() {
+    this.checkGameStatus();
+    this.recyclePipes();
+  }
+
+  checkGameStatus() {
+    if (
+      this.bird.y >= this.config.height - this.bird.height ||
+      this.bird.y <= 0
+    ) {
+      this.restartPlayerPosition();
+    }
+  }
+
+  createBG() {
+    this.add.image(0, 0, "sky").setOrigin(0);
+  }
+
+  createBird() {
     this.bird = this.physics.add
       .sprite(this.config.startPosition.x, this.config.startPosition.y, "bird")
       .setOrigin(0);
     this.bird.body.gravity.y = 400;
+  }
 
+  createPipes() {
     this.pipes = this.physics.add.group();
 
     for (let i = 0; i < PIPES_NUM; i++) {
@@ -38,19 +63,12 @@ export class PlayScene extends Phaser.Scene {
     }
 
     this.pipes.setVelocityX(-200);
+  }
 
+  handleInputs() {
     const spaceKey = this.input.keyboard.addKey("SPACE");
     this.input.on("pointerdown", this.flap, this);
     spaceKey.on("down", this.flap, this);
-  }
-  update() {
-    if (
-      this.bird.y >= this.config.height - this.bird.height ||
-      this.bird.y <= 0
-    )
-      this.restartPlayerPosition();
-
-    this.recyclePipes();
   }
 
   placePipe(uPipe, lPipe) {
@@ -74,7 +92,6 @@ export class PlayScene extends Phaser.Scene {
   }
 
   flap() {
-    console.log("sdgds");
     this.bird.body.velocity.y = -this.flapVelocity;
   }
 
