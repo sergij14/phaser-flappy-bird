@@ -24,14 +24,16 @@ export class PlayScene extends Phaser.Scene {
     this.load.image("sky", "assets/sky.png");
     this.load.image("bird", "assets/bird.png");
 
+    this.load.image("pause", "assets/pause.png");
     this.load.image("pipe", "assets/pipe.png");
   }
   create() {
+
     this.createBG();
     this.createBird();
     this.createPipes();
     this.createColliders();
-
+    this.createPause();
     this.createScore();
     this.handleInputs();
   }
@@ -98,6 +100,19 @@ export class PlayScene extends Phaser.Scene {
     );
   }
 
+  createPause() {
+    const pauseBtn = this.add
+      .image(this.config.width - 50, this.config.height - 50, "pause")
+      .setOrigin(0)
+      .setScale(2)
+      .setInteractive();
+    pauseBtn.on("pointerdown", () => {
+      console.log('dfgfd');
+      this.physics.pause();
+      this.scene.pause();
+    });
+  }
+
   handleInputs() {
     const spaceKey = this.input.keyboard.addKey("SPACE");
     this.input.on("pointerdown", this.flap, this);
@@ -131,7 +146,6 @@ export class PlayScene extends Phaser.Scene {
   recyclePipes() {
     const tempPipes = [];
     this.pipes.getChildren().forEach((pipe) => {
-      console.log(pipe);
       if (pipe.getBounds().right < 0) {
         tempPipes.push(pipe);
         if (tempPipes.length === 2) {
