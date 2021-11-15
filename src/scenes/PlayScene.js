@@ -1,11 +1,11 @@
 import Phaser from "phaser";
+import { BaseScene } from "./BaseScene";
 
 const PIPES_NUM = 4;
 
-export class PlayScene extends Phaser.Scene {
+export class PlayScene extends BaseScene {
   constructor(config) {
-    super("PlayScene");
-    this.config = config;
+    super("PlayScene", config);
 
     this.bird = null;
     this.pipes = null;
@@ -20,16 +20,8 @@ export class PlayScene extends Phaser.Scene {
     this.bestScore = +localStorage.getItem("bestScore") || 0;
   }
 
-  preload() {
-    this.load.image("sky", "assets/sky.png");
-    this.load.image("bird", "assets/bird.png");
-
-    this.load.image("pause", "assets/pause.png");
-    this.load.image("pipe", "assets/pipe.png");
-  }
   create() {
-
-    this.createBG();
+    super.create();
     this.createBird();
     this.createPipes();
     this.createColliders();
@@ -50,10 +42,6 @@ export class PlayScene extends Phaser.Scene {
     ) {
       this.gameOver();
     }
-  }
-
-  createBG() {
-    this.add.image(0, 0, "sky").setOrigin(0);
   }
 
   createBird() {
@@ -107,7 +95,7 @@ export class PlayScene extends Phaser.Scene {
       .setScale(2)
       .setInteractive();
     pauseBtn.on("pointerdown", () => {
-      console.log('dfgfd');
+      console.log("dfgfd");
       this.physics.pause();
       this.scene.pause();
     });
