@@ -15,6 +15,7 @@ export class PlayScene extends BaseScene {
     this.pipeHorizontalDistanceRange = [400, 500];
     this.flapVelocity = 300;
 
+    this.isPaused = false;
     this.score = 0;
     this.scoreText = "";
     this.bestScore = +localStorage.getItem("bestScore") || 0;
@@ -28,11 +29,48 @@ export class PlayScene extends BaseScene {
     this.createPause();
     this.createScore();
     this.handleInputs();
+    this.initEvents();
   }
 
   update() {
     this.checkGameStatus();
     this.recyclePipes();
+  }
+
+  initEvents() {
+    if (this.pauseEvent) {
+      return;
+    }
+    this.pauseEvent = this.events.on("resume", () => {
+      // this.scene.resume();
+      // this.physics.resume();
+      this.initTime = 3;
+      this.countDownText = this.add
+        .text(
+          ...this.screenCenter,
+          `Fly In ${this.initTime} Seconds`,
+          this.fontOptions
+        )
+        .setOrigin(0.5, 1);
+      this.timedEvent = this.time.addEvent({
+        delay: 1000,
+        callback: this.countDown,
+        callbackScope: this,
+        loop: true,
+      });
+    });
+  }
+
+  countDown() {
+    this.initTime--;
+    this.countDownText.setText(`Fly In ${this.initTime} Seconds`);
+    if (this.initTime === 0) {
+      this.countDownText.setText("");
+      this.physics.resume();
+      this.scene.resume();
+      this.timedEvent.remove();
+      this.isPaused = false;
+    }
   }
 
   checkGameStatus() {
@@ -89,15 +127,17 @@ export class PlayScene extends BaseScene {
   }
 
   createPause() {
+    this.isPaused = false;
     const pauseBtn = this.add
       .image(this.config.width - 50, this.config.height - 50, "pause")
       .setOrigin(0)
       .setScale(2)
       .setInteractive();
     pauseBtn.on("pointerdown", () => {
-      console.log("dfgfd");
       this.physics.pause();
       this.scene.pause();
+      this.scene.launch("PauseScene");
+      this.isPaused = true;
     });
   }
 
@@ -128,6 +168,9 @@ export class PlayScene extends BaseScene {
   }
 
   flap() {
+    if (this.isPaused) {
+      return;
+    }
     this.bird.body.velocity.y = -this.flapVelocity;
   }
 
