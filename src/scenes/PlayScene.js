@@ -11,14 +11,28 @@ export class PlayScene extends BaseScene {
     this.pipes = null;
 
     this.pipeHorizontalDistance = 0;
-    this.pipeVerticalDistaneRange = [150, 250];
-    this.pipeHorizontalDistanceRange = [400, 500];
     this.flapVelocity = 300;
 
     this.isPaused = false;
     this.score = 0;
     this.scoreText = "";
     this.bestScore = +localStorage.getItem("bestScore") || 0;
+
+    this.currentDifficulty = "easy";
+    this.difficulties = {
+      easy: {
+        pipeVerticalDistaneRange: [300, 350],
+        pipeHorizontalDistanceRange: [250, 280],
+      },
+      normal: {
+        pipeVerticalDistaneRange: [280, 330],
+        pipeHorizontalDistanceRange: [230, 250],
+      },
+      hard: {
+        pipeVerticalDistaneRange: [150, 200],
+        pipeHorizontalDistanceRange: [200, 220],
+      },
+    };
   }
 
   create() {
@@ -148,16 +162,17 @@ export class PlayScene extends BaseScene {
   }
 
   placePipe(uPipe, lPipe) {
+    const difficulties = this.difficulties[this.currentDifficulty];
     const rightMostX = this.getRightMostRight();
     const pipeVerticalDistance = Phaser.Math.Between(
-      ...this.pipeVerticalDistaneRange
+      ...difficulties.pipeVerticalDistaneRange
     );
     const pipeVerticalPosition = Phaser.Math.Between(
       0 + 20,
       this.config.height - 20 - pipeVerticalDistance
     );
     const pipeHorizontalDistance = Phaser.Math.Between(
-      ...this.pipeHorizontalDistanceRange
+      ...difficulties.pipeHorizontalDistanceRange
     );
 
     uPipe.x = rightMostX + pipeHorizontalDistance;
@@ -182,9 +197,19 @@ export class PlayScene extends BaseScene {
         if (tempPipes.length === 2) {
           this.placePipe(...tempPipes);
           this.increaseScore();
+          this.increaseDifficulty();
         }
       }
     });
+  }
+
+  increaseDifficulty() {
+    if (this.score === 2) {
+      this.currentDifficulty = "normal";
+    }
+    if (this.score === 4) {
+      this.currentDifficulty = "hard";
+    }
   }
 
   getRightMostRight() {
@@ -206,6 +231,7 @@ export class PlayScene extends BaseScene {
     // this.bird.x = this.config.startPosition.x;
     // this.bird.body.velocity.y = 0;
     this.physics.pause();
+    this.currentDifficulty = "easy";
     this.bird.setTint(0xee4844);
 
     const bestScoreString = localStorage.getItem("bestScore");
