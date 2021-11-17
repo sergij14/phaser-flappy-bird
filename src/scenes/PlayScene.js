@@ -103,26 +103,29 @@ export class PlayScene extends BaseScene {
       .setScale(3)
       .setOrigin(0)
       .setFlipX(true);
+    this.bird.setBodySize(this.bird.width, this.bird.height - 8);
     this.bird.body.gravity.y = 600;
     this.bird.setCollideWorldBounds(true);
   }
 
-  createBirdAnim(){
+  createBirdAnim() {
     this.anims.create({
       key: "fly",
       frames: this.anims.generateFrameNumbers("bird", {
-        frames: [8, 9, 10, 11, 12, 13, 14, 15],
+        start: 8,
+        end: 15,
       }),
       frameRate: 8,
-      repeat: 0
+      repeat: 0,
     });
     this.anims.create({
       key: "die",
       frames: this.anims.generateFrameNumbers("bird", {
-        frames: [16,17,18],
+        start: 16,
+        end: 18,
       }),
       frameRate: 8,
-      repeat: 0
+      repeat: 0,
     });
   }
 
@@ -209,7 +212,7 @@ export class PlayScene extends BaseScene {
       return;
     }
     this.bird.body.velocity.y = -this.flapVelocity;
-    this.bird.play('fly');
+    this.bird.play("fly");
   }
 
   recyclePipes() {
@@ -256,7 +259,7 @@ export class PlayScene extends BaseScene {
     this.physics.pause();
     this.currentDifficulty = "easy";
     this.bird.setTint(0xee4844);
-    this.bird.play('die');
+    this.bird.play("die");
 
     const bestScoreString = localStorage.getItem("bestScore");
     const bestScore = bestScoreString ? +bestScoreString : 0;

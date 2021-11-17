@@ -27,10 +27,11 @@ const initScenes = () => Scenes.map((Scene) => new Scene(SHARED_CONFIG));
 const config = {
   type: Phaser.AUTO,
   ...SHARED_CONFIG,
+  pixelArt: true,
   physics: {
     default: "arcade",
     arcade: {
-      debug: false,
+      debug: true,
     },
   },
   scene: initScenes(),
