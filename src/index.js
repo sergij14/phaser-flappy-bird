@@ -24,6 +24,23 @@ const SHARED_CONFIG = {
 
 const Scenes = [PreloadScene, MenuScene, ScoreScene, PlayScene, PauseScene];
 const initScenes = () => Scenes.map((Scene) => new Scene(SHARED_CONFIG));
+
+const resizeGame = () => {
+  const canvas = document.querySelector("canvas");
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+  const windowRatio = windowWidth / windowHeight;
+  const gameRatio = game.config.width / game.config.height;
+  if (windowRatio < gameRatio) {
+    canvas.style.width = windowWidth + "px";
+    canvas.style.height = windowWidth / gameRatio + "px";
+  } else {
+    canvas.style.width = windowHeight * gameRatio + "px";
+    canvas.style.height = windowHeight + "px";
+  }
+}
+
+
 window.onload = function () {
   const config = {
     type: Phaser.AUTO,
@@ -43,19 +60,3 @@ window.onload = function () {
   resizeGame();
   window.addEventListener("resize", resizeGame);
 };
-
-
-function resizeGame() {
-  const canvas = document.querySelector("canvas");
-  const windowWidth = window.innerWidth;
-  const windowHeight = window.innerHeight;
-  const windowRatio = windowWidth / windowHeight;
-  const gameRatio = game.config.width / game.config.height;
-  if (windowRatio < gameRatio) {
-    canvas.style.width = windowWidth + "px";
-    canvas.style.height = windowWidth / gameRatio + "px";
-  } else {
-    canvas.style.width = windowHeight * gameRatio + "px";
-    canvas.style.height = windowHeight + "px";
-  }
-}
